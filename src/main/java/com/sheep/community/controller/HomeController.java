@@ -7,7 +7,6 @@ import com.sheep.community.service.DiscussPostService;
 import com.sheep.community.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Repository;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -32,6 +31,7 @@ public class HomeController {
     public void setPostService(DiscussPostService postService) {
         this.postService = postService;
     }
+
     @GetMapping("/index")
     public String getIndexPage(Model model, Page page){
         //方法调用前，SpringMVC会自动实例化Model和Page，并将Page注入到Model中

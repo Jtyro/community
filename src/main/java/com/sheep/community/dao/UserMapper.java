@@ -17,7 +17,7 @@ public interface UserMapper {
 
     Integer insertUser(User user);
 
-    Integer updateStatus(Integer id, String status);
+    Integer updateStatus(Integer id, Integer status);
 
     Integer updateHeader(Integer id, String headerUrl);
 

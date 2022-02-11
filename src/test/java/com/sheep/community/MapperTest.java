@@ -13,7 +13,6 @@ public class MapperTest {
     @Autowired
     private DiscussPostMapper postMapper;
 
-    private String userId;
 
     @Test
     public void textSelect(){

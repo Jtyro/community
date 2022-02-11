@@ -11,6 +11,17 @@ spring:
       maximum-pool-size: 15
       minimum-idle: 5
       idle-timeout: 30000
+  mail:
+    host: smtp.163.com
+    port: 465
+    username: jytro123@163.com
+    password: CJESOPWKWTNPPVLT
+    protocol: smtps
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: true
 server:
   servlet:
     context-path: /community
@@ -20,4 +31,9 @@ mybatis:
   configuration:
     use-generated-keys: true
     map-underscore-to-camel-case: true
+
+community:
+  path:
+    domain: http://localhost:8080
+    upload: D:/Downloads/work/data/upload
 
