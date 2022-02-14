@@ -56,11 +56,18 @@ public class UserService implements CommunityConstant {
 
     /**
      * 通过Id查找用户
-     * @param id
-     * @return
+     * @param id id
+     * @return 用户
      */
     public User findUserById(Integer id) {
         return userMapper.selectById(id);
+    }
+
+    /**
+     * 通过name查找用户
+     */
+    public User findUserByName(String name){
+        return userMapper.selectByName(name);
     }
 
     /**
