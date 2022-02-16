@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayDeque;
+import java.util.Map;
+import java.util.PriorityQueue;
 
 @SpringBootTest
 class CommunityApplicationTests {
@@ -22,8 +24,7 @@ class CommunityApplicationTests {
 
 	@Test
 	void contextLoads() {
-		final int countByEntity = service.findCountByEntity(2, 12);
-		System.out.println(countByEntity);
+		PriorityQueue<Map.Entry<Integer, Integer>> queue = new PriorityQueue<>((o1, o2) -> o1.getValue() - o2.getValue());
 
 	}
 

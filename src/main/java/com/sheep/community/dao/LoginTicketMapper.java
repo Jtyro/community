@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
  * @author sheep
  */
 @Mapper
+@Deprecated
 public interface LoginTicketMapper {
 
     int insertLoginTicket(LoginTicket loginTicket);

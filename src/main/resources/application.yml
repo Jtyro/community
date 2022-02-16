@@ -22,6 +22,10 @@ spring:
         smtp:
           ssl:
             enable: true
+  redis:
+    host: localhost
+    database: 11
+    port: 6379
 server:
   servlet:
     context-path: /community
@@ -36,4 +40,3 @@ community:
   path:
     domain: http://localhost:8080
     upload: D:/Downloads/work/data/upload
-
