@@ -21,7 +21,7 @@ import java.util.List;
 public class CommentService implements CommunityConstant {
     private CommentMapper commentMapper;
     private SensitiveFilter sensitiveFilter;
-    private DiscussPostMapper postMapper;
+    private DiscussPostService postService;
 
     @Autowired
     public void setCommentMapper(CommentMapper commentMapper) {
@@ -32,8 +32,8 @@ public class CommentService implements CommunityConstant {
         this.sensitiveFilter = sensitiveFilter;
     }
     @Autowired
-    public void setPostMapper(DiscussPostMapper postMapper) {
-        this.postMapper = postMapper;
+    public void setPostMapper(DiscussPostService postService) {
+        this.postService = postService;
     }
 
     public List<Comment> findCommentsByEntity(int entityType, int entityId, int offset, int limit){
@@ -55,9 +55,13 @@ public class CommentService implements CommunityConstant {
         //更新评论数量
         if (comment.getEntityType() == ENTITY_TYPE_POST){
             int commentCount = commentMapper.selectCountByEntity(ENTITY_TYPE_POST,comment.getEntityId());
-            postMapper.updateCommentCount(comment.getEntityId(),commentCount);
+            postService.updateCommentCount(comment.getEntityId(),commentCount);
         }
         //添加评论
         return commentMapper.insertComment(comment);
+    }
+
+    public Comment findCommentById(int id){
+        return commentMapper.selectCommentById(id);
     }
 }

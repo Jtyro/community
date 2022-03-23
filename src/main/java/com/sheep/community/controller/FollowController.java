@@ -1,5 +1,7 @@
 package com.sheep.community.controller;
 
+import com.sheep.community.event.EventProducer;
+import com.sheep.community.pojo.Event;
 import com.sheep.community.pojo.Page;
 import com.sheep.community.pojo.User;
 import com.sheep.community.service.FollowService;
@@ -26,6 +28,7 @@ public class FollowController implements CommunityConstant {
     private HostHolder hostHolder;
     private FollowService followService;
     private UserService userService;
+    private EventProducer eventProducer;
 
     @Autowired
     public void setHostHolder(HostHolder hostHolder) {
@@ -39,12 +42,25 @@ public class FollowController implements CommunityConstant {
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
+    @Autowired
+    public void setEventProducer(EventProducer eventProducer) {
+        this.eventProducer = eventProducer;
+    }
 
     @PostMapping("/follow")
     @ResponseBody
     public String follow(int entityType, int entityId) {
         User user = hostHolder.getUser();
         followService.follow(user.getId(), entityType, entityId);
+
+        Event event = new Event()
+                .setTopic(TOPIC_FOLLOW)
+                .setEntityId(entityId)
+                .setEntityType(entityType)
+                .setEntityUserId(entityId)
+                .setUserId(user.getId());
+        eventProducer.fireEvent(event);
+
         return CommunityUtil.getJSONString(0,"已关注！");
     }
 

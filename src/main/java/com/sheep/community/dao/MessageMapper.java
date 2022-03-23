@@ -1,5 +1,6 @@
 package com.sheep.community.dao;
 
+import com.sheep.community.pojo.Comment;
 import com.sheep.community.pojo.Message;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -63,4 +64,12 @@ public interface MessageMapper {
      * @param status 要更改的状态
      */
     int updateStatus(List<Integer> ids, int status);
+
+    Message selectLatestNotice(int userId, String topic);
+
+    int selectNoticeCount(int userId, String topic);
+
+    int selectUnreadNotice(int userId, String topic);
+
+    List<Message> selectNotice(int userId, String topic, int offset, int limit);
 }

@@ -11,7 +11,7 @@ import java.util.List;
  */
 @Mapper
 public interface DiscussPostMapper {
-    List<DiscussPost> selectDiscussPosts(Integer userId, Integer offset, Integer limit);
+    List<DiscussPost> selectDiscussPosts(Integer userId, Integer offset, Integer limit, int orderMode);
 
     Integer selectDiscussPostRows(@Param("userId") Integer userId);
 
@@ -20,4 +20,10 @@ public interface DiscussPostMapper {
     DiscussPost selectDiscussPostById(int id);
 
     int updateCommentCount(int id, int commentCount);
+
+    int updatePostType(int id, int type);
+
+    int updatePostStatus(int id, int status);
+
+    int updatePostScore(int id, double score);
 }

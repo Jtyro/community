@@ -22,7 +22,7 @@ public class MapperTest {
     }
     @Test
     public void DisText(){
-        System.out.println(postMapper.selectDiscussPosts(149,0,10));
+//        System.out.println(postMapper.selectDiscussPosts(149,0,10));
         System.out.println(postMapper.selectDiscussPostRows(149));
 
     }
