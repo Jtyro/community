@@ -28,10 +28,10 @@ public class ExceptionAdvice {
         }
 
         String header = request.getHeader("x-requested-with");
-        if ("XMLHttpRequest".equals(header)){
+        if ("XMLHttpRequest".equals(header)) {
             response.setContentType("application/plain;charset=utf-8");
             PrintWriter writer = response.getWriter();
-            writer.write(CommunityUtil.getJSONString(1,"服务器异常！"));
+            writer.write(CommunityUtil.getJSONString(1, "服务器异常！"));
         } else {
             response.sendRedirect(request.getContextPath() + "/error");
         }

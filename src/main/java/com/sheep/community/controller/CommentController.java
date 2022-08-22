@@ -9,13 +9,13 @@ import com.sheep.community.service.DiscussPostService;
 import com.sheep.community.util.CommunityConstant;
 import com.sheep.community.util.HostHolder;
 import com.sheep.community.util.RedisKeyUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.annotation.Resource;
 import java.util.Date;
 
 /**
@@ -24,36 +24,16 @@ import java.util.Date;
 @Controller
 @RequestMapping("/comment")
 public class CommentController implements CommunityConstant {
+    @Resource
     private CommentService commentService;
+    @Resource
     private HostHolder hostHolder;
+    @Resource
     private EventProducer eventProducer;
+    @Resource
     private DiscussPostService postService;
-    private RedisTemplate redisTemplate;
-
-    @Autowired
-    public void setCommentService(CommentService commentService) {
-        this.commentService = commentService;
-    }
-
-    @Autowired
-    public void setHostHolder(HostHolder hostHolder) {
-        this.hostHolder = hostHolder;
-    }
-
-    @Autowired
-    public void setEventProducer(EventProducer eventProducer) {
-        this.eventProducer = eventProducer;
-    }
-
-    @Autowired
-    public void setPostService(DiscussPostService postService) {
-        this.postService = postService;
-    }
-
-    @Autowired
-    public void setRedisTemplate(RedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     @PostMapping("/add/{postId}")
     public String addComment(@PathVariable("postId") int postId, Comment comment) {
@@ -79,13 +59,6 @@ public class CommentController implements CommunityConstant {
         eventProducer.fireEvent(event);
 
         if (comment.getEntityType() == ENTITY_TYPE_POST) {
-            event = new Event()
-                    .setTopic(TOPIC_PUBLISH)
-                    .setUserId(comment.getUserId())
-                    .setEntityId(postId)
-                    .setEntityType(ENTITY_TYPE_POST);
-            eventProducer.fireEvent(event);
-
             //添加分数变换的帖子
             String postScoreKey = RedisKeyUtil.getPostScoreKey();
             redisTemplate.opsForSet().add(postScoreKey, postId);

@@ -13,6 +13,22 @@
         limit #{offset}, #{limit}
     </select>
 
+    <select id="selectCommentsByUserId" resultType="Comment">
+        select id, user_id, entity_type, entity_id, target_id, content, status, create_time
+        from comment
+        where status = 0
+        AND user_id = #{userId}
+        order by create_time
+        limit #{offset}, #{limit}
+    </select>
+
+    <select id="selectCommentsRows" resultType="int">
+        select count(id)
+        from comment
+        where status = 0
+        AND user_id = #{userId}
+    </select>
+
     <select id="selectCountByEntity" resultType="int">
         select count(id)
         from comment

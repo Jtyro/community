@@ -7,12 +7,12 @@ import com.sheep.community.service.DiscussPostService;
 import com.sheep.community.service.LikeService;
 import com.sheep.community.service.UserService;
 import com.sheep.community.util.CommunityConstant;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,24 +23,13 @@ import java.util.Map;
  */
 @Controller
 public class HomeController implements CommunityConstant{
+
+    @Resource
     private UserService userService;
+    @Resource
     private DiscussPostService postService;
+    @Resource
     private LikeService likeService;
-
-    @Autowired
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
-    @Autowired
-    public void setPostService(DiscussPostService postService) {
-        this.postService = postService;
-    }
-
-    @Autowired
-    public void setLikeService(LikeService likeService) {
-        this.likeService = likeService;
-    }
 
     @GetMapping("/index")
     public String getIndexPage(Model model, Page page,
@@ -51,7 +40,7 @@ public class HomeController implements CommunityConstant{
         page.setPath("/index?orderMode=" + orderMode);
 
         List<Map<String, Object>> discussPosts = new ArrayList<>();
-        List<DiscussPost> list = postService.findDiscussPosts(0, page.getOffset(), page.getLimit(),orderMode);
+        List<DiscussPost> list = postService.findDiscussPosts(0, page.getOffset(), page.getLimit(), orderMode);
         if (list != null) {
             for (DiscussPost post : list) {
                 Map<String, Object> map = new HashMap<>();

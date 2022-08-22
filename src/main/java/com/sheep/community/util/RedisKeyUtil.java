@@ -12,9 +12,8 @@ public class RedisKeyUtil {
     private static final String PREFIX_KAPTCHA = "kaptcha";
     private static final String PREFIX_TICKET = "ticket";
     private static final String PREFIX_USER = "user";
-    private static final String PREFIX_UV = "uv";
-    private static final String PREFIX_DAU = "dau";
     private static final String PREFIX_POST = "post";
+    private static final String PREFIX_HOT = "post:hot";
 
     /**
      * 某个实体的赞
@@ -53,23 +52,11 @@ public class RedisKeyUtil {
         return PREFIX_USER + SPLIT + userId;
     }
 
-    public static String getUVKey(String date) {
-        return PREFIX_UV + SPLIT + date;
-    }
-
-    public static String getUVKey(String startDate, String endDate) {
-        return PREFIX_UV + SPLIT + startDate + SPLIT + endDate;
-    }
-
-    public static String getDAUKey(String date) {
-        return PREFIX_DAU + SPLIT + date;
-    }
-
-    public static String getDAUKey(String startDate, String endDate) {
-        return PREFIX_DAU + SPLIT + startDate + SPLIT + endDate;
-    }
-
     public static String getPostScoreKey() {
         return PREFIX_POST + SPLIT + "score";
+    }
+
+    public static String getHotKey(int offset, int limit){
+        return PREFIX_HOT + SPLIT + offset + SPLIT + limit;
     }
 }

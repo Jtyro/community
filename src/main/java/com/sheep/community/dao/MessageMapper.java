@@ -1,6 +1,5 @@
 package com.sheep.community.dao;
 
-import com.sheep.community.pojo.Comment;
 import com.sheep.community.pojo.Message;
 import org.apache.ibatis.annotations.Mapper;
 

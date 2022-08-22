@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 
@@ -25,27 +26,14 @@ import java.util.Map;
  */
 @Controller
 public class FollowController implements CommunityConstant {
+    @Resource
     private HostHolder hostHolder;
+    @Resource
     private FollowService followService;
+    @Resource
     private UserService userService;
+    @Resource
     private EventProducer eventProducer;
-
-    @Autowired
-    public void setHostHolder(HostHolder hostHolder) {
-        this.hostHolder = hostHolder;
-    }
-    @Autowired
-    public void setFollowService(FollowService followService) {
-        this.followService = followService;
-    }
-    @Autowired
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-    @Autowired
-    public void setEventProducer(EventProducer eventProducer) {
-        this.eventProducer = eventProducer;
-    }
 
     @PostMapping("/follow")
     @ResponseBody

@@ -22,6 +22,4 @@ public interface UserMapper {
     Integer updateHeader(Integer id, String headerUrl);
 
     Integer updatePassword(Integer id, String password);
-
-
 }

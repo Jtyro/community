@@ -10,12 +10,12 @@ import com.sheep.community.util.CommunityConstant;
 import com.sheep.community.util.CommunityUtil;
 import com.sheep.community.util.HostHolder;
 import com.sheep.community.util.RedisKeyUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.*;
 
 /**
@@ -24,48 +24,20 @@ import java.util.*;
 @Controller
 @RequestMapping("/discuss")
 public class DiscussPostController implements CommunityConstant {
+    @Resource
     private HostHolder hostHolder;
-    private DiscussPostService postService;
+    @Resource
+    private DiscussPostService discussPostService;
+    @Resource
     private UserService userService;
+    @Resource
     private CommentService commentService;
+    @Resource
     private LikeService likeService;
+    @Resource
     private EventProducer eventProducer;
-    private RedisTemplate redisTemplate;
-
-    @Autowired
-    public void setHostHolder(HostHolder hostHolder) {
-        this.hostHolder = hostHolder;
-    }
-
-    @Autowired
-    public void setPostService(DiscussPostService postService) {
-        this.postService = postService;
-    }
-
-    @Autowired
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
-    @Autowired
-    public void setCommentService(CommentService commentService) {
-        this.commentService = commentService;
-    }
-
-    @Autowired
-    public void setLikeService(LikeService likeService) {
-        this.likeService = likeService;
-    }
-
-    @Autowired
-    public void setEventProducer(EventProducer eventProducer) {
-        this.eventProducer = eventProducer;
-    }
-
-    @Autowired
-    public void setRedisTemplate(RedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     @PostMapping("/add")
     @ResponseBody
@@ -83,15 +55,7 @@ public class DiscussPostController implements CommunityConstant {
         post.setType(0);
         post.setCommentCount(0);
         post.setScore(0.0);
-        postService.addDiscussPost(post);
-
-        Event event = new Event()
-                .setTopic(TOPIC_PUBLISH)
-                .setUserId(user.getId())
-                .setEntityId(post.getId())
-                .setEntityType(ENTITY_TYPE_POST);
-        eventProducer.fireEvent(event);
-
+        discussPostService.addDiscussPost(post);
 
         //添加分数变换的帖子
         String postScoreKey = RedisKeyUtil.getPostScoreKey();
@@ -103,7 +67,7 @@ public class DiscussPostController implements CommunityConstant {
     @GetMapping("/detail/{postId}")
     public String getDiscussPostDetail(@PathVariable("postId") int postId, Model model, Page page) {
         //评论
-        DiscussPost post = postService.findDiscussPostById(postId);
+        DiscussPost post = discussPostService.findDiscussPostById(postId);
         model.addAttribute("post", post);
         //作者
         User user = userService.findUserById(post.getUserId());
@@ -170,7 +134,7 @@ public class DiscussPostController implements CommunityConstant {
     @PostMapping("/top")
     @ResponseBody
     public String setTop(int id) {
-        postService.updatePostType(id, 1);
+        discussPostService.updatePostType(id, 1);
 
         Event event = new Event()
                 .setTopic(TOPIC_PUBLISH)
@@ -185,7 +149,7 @@ public class DiscussPostController implements CommunityConstant {
     @PostMapping("/wonderful")
     @ResponseBody
     public String setWonderful(int id) {
-        postService.updatePostStatus(id, 1);
+        discussPostService.updatePostStatus(id, 1);
 
         Event event = new Event()
                 .setTopic(TOPIC_PUBLISH)
@@ -204,7 +168,7 @@ public class DiscussPostController implements CommunityConstant {
     @PostMapping("/delete")
     @ResponseBody
     public String setDelete(int id) {
-        postService.updatePostStatus(id, 2);
+        discussPostService.updatePostStatus(id, 2);
 
         Event event = new Event()
                 .setTopic(TOPIC_DELETE)
@@ -215,6 +179,4 @@ public class DiscussPostController implements CommunityConstant {
 
         return CommunityUtil.getJSONString(0);
     }
-
-
 }

@@ -2,6 +2,7 @@ package com.sheep.community.pojo;
 
 /**
  * 用于封装分页相关的信息
+ *
  * @author sheep
  */
 public class Page {
@@ -19,7 +20,7 @@ public class Page {
     }
 
     public void setCurrent(Integer current) {
-        if(current > 0){
+        if (current > 0) {
             this.current = current;
         }
     }
@@ -29,7 +30,7 @@ public class Page {
     }
 
     public void setLimit(Integer limit) {
-        if (limit >= 1 && limit <= 100){
+        if (limit >= 1 && limit <= 100) {
             this.limit = limit;
         }
     }
@@ -39,7 +40,7 @@ public class Page {
     }
 
     public void setRows(Integer rows) {
-        if(rows >= 0) {
+        if (rows >= 0) {
             this.rows = rows;
         }
     }
@@ -54,35 +55,31 @@ public class Page {
 
     /**
      * 获取当前页的起始行
-     * @return
      */
-    public Integer getOffset(){
+    public Integer getOffset() {
         return (current - 1) * limit;
     }
 
     /**
      * 获取总页数
-     * @return
      */
-    public Integer getTotal(){
+    public Integer getTotal() {
         return (rows + limit - 1) / limit;
     }
 
     /**
      * 获取起始页码
-     * @return
      */
-    public Integer getFrom(){
+    public Integer getFrom() {
         int from = current - 2;
         return Math.max(from, 1);
     }
 
     /**
      * 获取结束页码
-     * @return
      */
-    public Integer getTo(){
-        int to = Math.max(current + 2,5);
-        return Math.min(to,getTotal());
+    public Integer getTo() {
+        int to = Math.max(current + 2, 5);
+        return Math.min(to, getTotal());
     }
 }

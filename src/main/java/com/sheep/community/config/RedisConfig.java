@@ -11,12 +11,10 @@ import org.springframework.data.redis.serializer.RedisSerializer;
  */
 @Configuration
 public class RedisConfig {
-
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory){
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(factory);
-
         //设置key的序列化方式
         template.setKeySerializer(RedisSerializer.string());
         //设置value的序列化方式

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,27 +23,14 @@ import java.util.Map;
  */
 @Controller
 public class LikeController implements CommunityConstant {
+    @Resource
     private LikeService likeService;
+    @Resource
     private HostHolder hostHolder;
+    @Resource
     private EventProducer eventProducer;
+    @Resource
     private RedisTemplate redisTemplate;
-
-    @Autowired
-    public void setLikeService(LikeService likeService) {
-        this.likeService = likeService;
-    }
-    @Autowired
-    public void setHostHolder(HostHolder hostHolder) {
-        this.hostHolder = hostHolder;
-    }
-    @Autowired
-    public void setEventProducer(EventProducer eventProducer) {
-        this.eventProducer = eventProducer;
-    }
-    @Autowired
-    public void setRedisTemplate(RedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
 
     @PostMapping("/like")
     @ResponseBody

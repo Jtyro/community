@@ -9,10 +9,8 @@ import com.sheep.community.util.RedisKeyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -20,10 +18,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -36,26 +34,15 @@ import java.util.concurrent.TimeUnit;
 @Controller
 public class LoginController implements CommunityConstant {
     private final static Logger logger = LoggerFactory.getLogger(LoginController.class);
-
+    @Resource
     private UserService userService;
+    @Resource
     private Producer kaptchaProducer;
-    private RedisTemplate redisTemplate;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Value("${server.servlet.context-path}")
     private String contextPath;
-
-    @Autowired
-    public void setKaptchaProducer(Producer kaptchaProducer) {
-        this.kaptchaProducer = kaptchaProducer;
-    }
-    @Autowired
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-    @Autowired
-    public void setRedisTemplate(RedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
 
     @GetMapping("/register")
     public String getRegister() {
@@ -90,7 +77,7 @@ public class LoginController implements CommunityConstant {
             model.addAttribute("target", "/login");
         } else if (result == ACTIVATION_REPEAT) {
             model.addAttribute("msg", "无效操作，该账号已经激活过了！");
-            model.addAttribute("target", "/index");
+            model.addAttribute("target", "/login");
         } else {
             model.addAttribute("msg", "激活失败，您提供的激活码不正确！");
             model.addAttribute("target", "/index");
@@ -106,8 +93,8 @@ public class LoginController implements CommunityConstant {
         //将验证码放入redis
         String cookieOwner = CommunityUtil.generateUUID();
         String kaptchaKey = RedisKeyUtil.getKaptchaKey(cookieOwner);
-        redisTemplate.opsForValue().set(kaptchaKey,text,60, TimeUnit.SECONDS);
-        Cookie cookie = new Cookie("cookieOwner",cookieOwner);
+        redisTemplate.opsForValue().set(kaptchaKey, text, 60, TimeUnit.SECONDS);
+        Cookie cookie = new Cookie("cookieOwner", cookieOwner);
         response.addCookie(cookie);
         //将图片输出给浏览器
         response.setContentType("image/png");
@@ -120,11 +107,12 @@ public class LoginController implements CommunityConstant {
     }
 
     @PostMapping("/login")
-    public String login(@CookieValue("cookieOwner") String cookieOwner, String username, String password, String code, boolean remember, Model model, HttpServletResponse response) {
+    public String login(@CookieValue("cookieOwner") String cookieOwner, String username, String password,
+                        String code, boolean remember, Model model, HttpServletResponse response) {
         String kaptchaKey = RedisKeyUtil.getKaptchaKey(cookieOwner);
         String kaptcha = (String) redisTemplate.opsForValue().get(kaptchaKey);
         //检查验证码
-        if (StringUtils.isBlank(kaptcha)){
+        if (StringUtils.isBlank(kaptcha)) {
             model.addAttribute("codeMsg", "验证码已失效！");
             return "site/login";
         }
@@ -150,9 +138,8 @@ public class LoginController implements CommunityConstant {
     }
 
     @GetMapping("/logout")
-    public String logout(@CookieValue("ticket") String ticket){
+    public String logout(@CookieValue("ticket") String ticket) {
         userService.logout(ticket);
-        SecurityContextHolder.clearContext();
         return "redirect:/login";
     }
 }

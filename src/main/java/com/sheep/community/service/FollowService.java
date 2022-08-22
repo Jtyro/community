@@ -8,8 +8,10 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SessionCallback;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.*;
 
 /**
@@ -17,22 +19,15 @@ import java.util.*;
  */
 @Service
 public class FollowService implements CommunityConstant {
+    @Resource
     private RedisTemplate redisTemplate;
+    @Resource
     private UserService userService;
-
-    @Autowired
-    public void setRedisTemplate(RedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
-    @Autowired
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
 
     public void follow(int userId, int entityType, int entityId) {
         redisTemplate.execute(new SessionCallback() {
             @Override
-            public Object execute(RedisOperations operations) throws DataAccessException {
+            public Object execute(@NonNull RedisOperations operations) throws DataAccessException {
                 String followeeKey = RedisKeyUtil.getFolloweeKey(userId, entityType);
                 String followerKey = RedisKeyUtil.getFollowerKey(entityType, entityId);
                 operations.multi();

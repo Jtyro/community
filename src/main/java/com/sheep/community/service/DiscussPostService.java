@@ -1,20 +1,20 @@
 package com.sheep.community.service;
 
-import com.github.benmanes.caffeine.cache.CacheLoader;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.sheep.community.dao.DiscussPostMapper;
 import com.sheep.community.pojo.DiscussPost;
+import com.sheep.community.util.RedisKeyUtil;
 import com.sheep.community.util.SensitiveFilter;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.HtmlUtils;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -24,19 +24,13 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class DiscussPostService {
     private static final Logger logger = LoggerFactory.getLogger(DiscussPostService.class);
-
+    private final Object lock = new Object();
+    @Resource
     private DiscussPostMapper postMapper;
+    @Resource
     private SensitiveFilter sensitiveFilter;
-
-    @Autowired
-    public void setSensitiveFilter(SensitiveFilter sensitiveFilter) {
-        this.sensitiveFilter = sensitiveFilter;
-    }
-
-    @Autowired
-    public void setPostMapper(DiscussPostMapper postMapper) {
-        this.postMapper = postMapper;
-    }
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Value("${caffeine.posts.max-size}")
     private int maxSize;
@@ -44,7 +38,9 @@ public class DiscussPostService {
     @Value("${caffeine.posts.expire-seconds}")
     private int expireSeconds;
 
+    //缓存热门帖子
     private LoadingCache<String, List<DiscussPost>> postListCache;
+    //缓存帖子数量
     private LoadingCache<Integer, Integer> postRowsCache;
 
     @PostConstruct
@@ -53,38 +49,42 @@ public class DiscussPostService {
         postListCache = Caffeine.newBuilder()
                 .maximumSize(maxSize)
                 .expireAfterWrite(expireSeconds, TimeUnit.SECONDS)
-                .build(new CacheLoader<String, List<DiscussPost>>() {
-                    @Override
-                    public @Nullable List<DiscussPost> load(String key) throws Exception {
-                        if (key == null || key.length() == 0) {
-                            throw new IllegalArgumentException("参数不能为空！");
-                        }
-
-                        String[] params = key.split(":");
-                        if (params.length != 2) {
-                            throw new IllegalArgumentException("参数错误！");
-                        }
-                        int offset = Integer.parseInt(params[0]);
-                        int limit = Integer.parseInt(params[1]);
-                        logger.debug("load post list from DB.");
-                        return postMapper.selectDiscussPosts(0, offset, limit, 1);
+                .build(key -> {
+                    if (key == null || key.length() == 0) {
+                        throw new IllegalArgumentException("参数不能为空！");
                     }
-                });
 
+                    String[] params = key.split(":");
+                    if (params.length != 2) {
+                        throw new IllegalArgumentException("参数错误！");
+                    }
+                    int offset = Integer.parseInt(params[0]);
+                    int limit = Integer.parseInt(params[1]);
+                    logger.info("load post list from Redis.");
+
+                    //二级缓存
+                    String hotKey = RedisKeyUtil.getHotKey(offset, limit);
+                    List<DiscussPost> discussPosts = (List<DiscussPost>) redisTemplate.opsForValue().get(hotKey);
+                    if(discussPosts != null) return discussPosts;
+                    logger.info("load post list from DB.");
+                    discussPosts = postMapper.selectDiscussPosts(0, offset, limit, 1);
+                    synchronized (lock){
+                        if(redisTemplate.opsForValue().get(hotKey) == null){
+                            redisTemplate.opsForValue().set(hotKey, discussPosts, 300, TimeUnit.SECONDS);
+                        }
+                    }
+                    return discussPosts;
+                });
         //初始化postRowsCache
         postRowsCache = Caffeine.newBuilder()
                 .maximumSize(maxSize)
                 .expireAfterWrite(expireSeconds, TimeUnit.SECONDS)
-                .build(new CacheLoader<Integer, Integer>() {
-                    @Override
-                    public @Nullable Integer load(Integer integer) throws Exception {
-                        logger.debug("load post rows from DB.");
-                        return postMapper.selectDiscussPostRows(integer);
-                    }
+                .build(integer -> {
+                    logger.info("load post rows from DB.");
+                    return postMapper.selectDiscussPostRows(integer);
                 });
 
     }
-
 
     public List<DiscussPost> findDiscussPosts(Integer userId, Integer offset, Integer limit, int orderMode) {
         if (userId == 0 && orderMode == 1) {
@@ -125,17 +125,15 @@ public class DiscussPostService {
         postMapper.updateCommentCount(id, commentCount);
     }
 
-    public int updatePostType(int id, int type) {
-        return postMapper.updatePostType(id, type);
+    public void updatePostType(int id, int type) {
+        postMapper.updatePostType(id, type);
     }
 
-    public int updatePostStatus(int id, int status) {
-        return postMapper.updatePostStatus(id, status);
+    public void updatePostStatus(int id, int status) {
+        postMapper.updatePostStatus(id, status);
     }
 
-    public int updatePostScore(int id, double score) {
-        return postMapper.updatePostScore(id, score);
+    public void updatePostScore(int id, double score) {
+        postMapper.updatePostScore(id, score);
     }
-
-
 }

@@ -5,15 +5,12 @@ import com.sheep.community.pojo.User;
 import com.sheep.community.service.UserService;
 import com.sheep.community.util.CookieUtil;
 import com.sheep.community.util.HostHolder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
@@ -23,21 +20,13 @@ import java.util.Date;
  */
 @Component
 public class LoginTicketInterceptor implements HandlerInterceptor {
+    @Resource
     private UserService userService;
+    @Resource
     private HostHolder hostHolder;
 
-    @Autowired
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
-    @Autowired
-    public void setHostHolder(HostHolder hostHolder) {
-        this.hostHolder = hostHolder;
-    }
-
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) {
         //获取凭证
         String ticket = CookieUtil.getValue(request, "ticket");
         if (ticket != null) {
@@ -48,17 +37,13 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
                 User user = userService.findUserById(loginTicket.getUserId());
                 //在本次请求中持有用户信息
                 hostHolder.setUser(user);
-
-                Authentication authentication = new UsernamePasswordAuthenticationToken(
-                        user, user.getPassword(), userService.getAuthorities(user.getId()));
-                SecurityContextHolder.setContext(new SecurityContextImpl(authentication));
             }
         }
         return true;
     }
 
     @Override
-    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+    public void postHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler, ModelAndView modelAndView) {
         User user = hostHolder.getUser();
         if (user != null && modelAndView != null) {
             modelAndView.addObject("loginUser", user);
@@ -66,8 +51,9 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+    public void afterCompletion(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler, Exception ex) {
         hostHolder.clear();
-//        SecurityContextHolder.clearContext();
     }
+
+
 }

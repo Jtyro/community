@@ -26,7 +26,7 @@ public class SensitiveFilter {
     /**
      * 根节点
      */
-    private TrieNode root = new TrieNode();
+    private final TrieNode root = new TrieNode();
 
     /**
      * 在初始化时，完成敏感词前缀树的构建
@@ -34,12 +34,15 @@ public class SensitiveFilter {
     @PostConstruct
     public void init() {
         try (
-                InputStream is = this.getClass().getClassLoader().getResourceAsStream("sensitive-words.txt");
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is))
+                InputStream is = this.getClass().getClassLoader().getResourceAsStream("sensitive-words.txt")
         ) {
-            String keyword;
-            while ((keyword = reader.readLine()) != null) {
-                this.addKeyword(keyword);
+            assert is != null;
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))
+            ) {
+                String keyword;
+                while ((keyword = reader.readLine()) != null) {
+                    this.addKeyword(keyword);
+                }
             }
         } catch (IOException e) {
             logger.error("加载敏感词文件失败：" + e.getMessage());
@@ -77,14 +80,14 @@ public class SensitiveFilter {
         if (text == null) {
             return null;
         }
-        //定义三指针
+        //定义三个指针
         TrieNode tempNode = root;
         int begin = 0;
         int position = 0;
 
         StringBuilder sb = new StringBuilder();
         while (begin < text.length()) {
-            if (position < text.length() ) {
+            if (position < text.length()) {
                 char c = text.charAt(position);
                 if (isSymbol(c)) {
                     if (tempNode == root) {
@@ -123,7 +126,7 @@ public class SensitiveFilter {
     /**
      * 前缀树节点类
      */
-    private class TrieNode {
+    private static class TrieNode {
         private boolean keywordEnd = false;
         private final Map<Character, TrieNode> subNodes = new HashMap<>();
 

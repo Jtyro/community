@@ -32,8 +32,6 @@ spring:
       group-id: test-consumer-group
       enable-auto-commit: true
       auto-commit-interval: 3000
-  elasticsearch:
-    uris: http://127.0.0.1:9200
 #    quartz
   quartz:
     job-store-type: jdbc
@@ -68,5 +66,7 @@ community:
 #caffeine
 caffeine:
   posts:
-    max-size: 30
+    #缓存最大数量
+    max-size: 15
+    #过期时间
     expire-seconds: 180

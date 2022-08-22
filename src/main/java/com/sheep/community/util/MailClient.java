@@ -8,6 +8,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
@@ -18,15 +19,11 @@ import javax.mail.internet.MimeMessage;
 public class MailClient {
     private final static Logger logger = LoggerFactory.getLogger(MailClient.class);
 
+    @Resource
     private JavaMailSender javaMailSender;
 
     @Value("${spring.mail.username}")
     private String from;
-
-    @Autowired
-    public void setJavaMailSender(JavaMailSender javaMailSender) {
-        this.javaMailSender = javaMailSender;
-    }
 
     public void sendMail(String to, String subject, String context){
         try {

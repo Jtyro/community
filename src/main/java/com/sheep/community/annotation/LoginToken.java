@@ -5,10 +5,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * @author sheep
- */
-@Target(ElementType.METHOD)
+//需要登录才能进行操作的注解LoginToken
+@Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface LoginRequired {
+public @interface LoginToken {
+    boolean required() default true;
 }
+
